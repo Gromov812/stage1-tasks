@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="assets/favicon.ico" rel="shortcut icon" />
+  <link rel="stylesheet" href="css/owfont-regular.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>momentum</title>
+</head>
+
+<body>
+  <header class="header">
+    <div class="player">
+      <div class="player-controls">
+        <button class="play-prev player-icon"></button>
+        <button class="play player-icon"></button>
+        <button class="play-next player-icon"></button>
+        <div style="display: flex; flex-direction: column">
+          <div class="song-name">WINAMP 3.0</div>
+          <div style="display: flex; align-items: center;">
+        <input type="range" class="songTimer" value="0" step="any">
+        <span class="current-song-duration">-</span>&nbsp;/&nbsp;<span class="all-song-duration">-</span>
+      </div>
+      </div>
+
+        <span>Volume: <input type="range" class="volume" max="100" step="any" value="20"></span>
+        <button class="player-icon mute"></button>
+      </div>
+      <ul class="play-list"></ul>
+    </div>
+    <div class="weather">
+      <input type="text" class="city" />
+      <i class="weather-icon owf"></i>
+      <div class="weather-error"></div>
+      <div class="description-container">
+        <span class="temperature"></span>
+        <span class="weather-description"></span>
+      </div>
+      <div class="wind"></div>
+      <div class="humidity"></div>
+    </div>
+  </header>
+  <main class="main">
+    <div class="slider-icons">
+      <button class="slide-prev slider-icon"></button>
+      <button class="slide-next slider-icon"></button>
+    </div>
+    <time class="time"></time>
+    <date class="date"></date>
+    <div class="greeting-container">
+      <span class="greeting"></span>
+      <input type="text" class="name" placeholder="[Enter Name]" />
+    </div>
+  </main>
+  <footer class="footer">
+    <button class="change-quote"></button>
+    <div>
+      <div class="quote"></div>
+      <div class="author"></div>
+    </div>
+    <button class="player-icon settings"></button>
+    <div class="settingsBox">
+      <div>
+      <label for="lang">Language</label>
+      <select name="lang" id="chooseLang">
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+      </select>
+    </div>
+      <div>
+      <label for="lang">background Source</label>
+      <select name="lang" id="">
+        <option value="en">GitHub</option>
+        <option value="en">Unsplash API</option>
+        <option value="en">Flickr API </option>
+      </select>
+      <p style="display: block;">Pics categories<input type="text" ></p>
+      <p>Display blocks: </p>
+      <label for="">Player</label>
+      <input type="checkbox" name="Player" id="playerCheck" checked>
+      <label for="">Greetings</label>
+      <input type="checkbox" name="Greetings" id="greetingsCheck" checked>
+      <label for="">Quotes</label>
+      <input type="checkbox" name="Quotes" id="quotesCheck" checked>
+      <label for="">weather</label>
+      <input type="checkbox" name="weather" id="weatherCheck" checked>
+      
+    </div>
+    </div>
+  </footer>
+  <script>
+    'use strict';
+
+
+
+     
+
+
+    const lang = {
+      ru: {
+        greet:{
+        placeholder: '[Введите ваше имя]',
+        goodNight: 'Доброй ночи, ',
+        goodMorning: 'Доброе утро, ',
+        goodDay: 'Добрый день, ',
+        goodEvening: 'Добрый вечер, ',
+      },
+      time: {
+        format: 'ru-RU',
+      }
+      },
+      en: {
+        greet:{
+        placeholder: '[Enter your name]',
+        goodNight: 'Good night, ',
+        goodMorning: 'Good morning, ',
+        goodDay: 'Good day, ',
+        goodEvening: 'Good evening, ',
+      },
+      time: {
+        format: 'en-EN',
+      }
+      },
+    }
+
+    const chooseLang = document.querySelector('#chooseLang');
+    const playerCheck = document.querySelector('#playerCheck');
+    const greetingsCheck = document.querySelector('#greetingsCheck');
+    const quotesCheck = document.querySelector('#quotesCheck');
+    const weatherCheck = document.querySelector('#weatherCheck');
+    const time = document.querySelector('.time');
+    const date = document.querySelector('.date');
+    const greet = document.querySelector('.greeting');
+    const username = document.querySelector('.name');
+    const body = document.querySelector('body');
+    const sliderButton = document.querySelectorAll('.slider-icon');
+    const quoteText = document.querySelector('.quote');
+    const quoteAuthor = document.querySelector('.author');
+    const updateQuote = document.querySelector('.change-quote');
+    const weatherIcon = document.querySelector('.weather-icon');
+    const weatherTemperature = document.querySelector('.temperature');
+    const weatherDescription = document.querySelector('.weather-description');
+    const wheatherCity = document.querySelector('.city');
+    const wheatherError = document.querySelector('.weather-error');
+    const playlist = document.querySelector('.play-list');
+    const playerButtons = document.querySelectorAll('.player-icon');
+    const songTimer = document.querySelector('.songTimer');
+    const currentSongDuration = document.querySelector('.current-song-duration');
+    const allSongDuration = document.querySelector('.all-song-duration');
+    const volume = document.querySelector('.volume');
+    const songName = document.querySelector('.song-name');
+    const muteButton = document.querySelector('.mute');
+    const settingsButton = document.querySelector('.settings');
+
+    let setLang = localStorage.getItem('lang');
+
+    chooseLang.addEventListener('change', (e) => {
+
+      localStorage.setItem('lang', e.target.value);
+      setLang = e.target.value;
+      quo();
+      getWheather(localStorage.getItem('city'));
+    })
+
+    chooseLang.value = localStorage.getItem('lang')
+    settingsButton.addEventListener('click', () => {
+      document.querySelector('.settingsBox').classList.toggle('swipe');
+    })
+
+    playerCheck.addEventListener('click', () => {
+      document.querySelector('.player-controls').classList.toggle('noDisplay');
+      document.querySelector('.play-list').classList.toggle('noDisplay');
+    });
+
+
+    weatherCheck.addEventListener('click', () => {
+      document.querySelector('.weather').classList.toggle('noDisplay');
+    });
+
+    greetingsCheck.addEventListener('click', () => {
+      document.querySelector('.greeting-container').classList.toggle('noDisplay');
+    });
+
+    quotesCheck.addEventListener('click', () => {
+      quoteText.classList.toggle('noDisplay');
+      quoteAuthor.classList.toggle('noDisplay');
+      updateQuote.classList.toggle('noDisplay');
+    });
+    
+    
+
+    let currentSlide;
+    let setQuarter;
+
+    /*------------------- SLIDER -------------------*/
+
+    for (let el of sliderButton) {
+      el.addEventListener('click', () => {
+
+        if (el.classList.contains('slide-prev')) {
+
+
+          sliderButtonsChanger('prev')
+
+        }
+
+        if (el.classList.contains('slide-next')) {
+
+
+          sliderButtonsChanger('next')
+
+        }
+      })
+
+    }
+
+    function sliderButtonsChanger(command) {
+
+      if (command == 'next') {
+        if (currentSlide < 9) {
+          currentSlide++;
+          currentSlide = `0${currentSlide}`
+        }
+        else if (currentSlide >= 9 & currentSlide <= 19) currentSlide++;
+        else if (currentSlide <= 20) currentSlide = '01';
+
+      }
+
+      if (command == 'prev') {
+
+        if (currentSlide <= 10 & currentSlide > 1) {
+          currentSlide--;
+          currentSlide = `0${currentSlide}`
+        }
+        else if (currentSlide > 10 & currentSlide <= 20) currentSlide--;
+        else if (currentSlide <= '01') currentSlide = 20;
+      }
+
+      let pic = new Image();
+      pic.src = `https://raw.githubusercontent.com/Gromov812/stage1-tasks/assets/images/${setQuarter}/${currentSlide}.jpg`;
+      pic.onload = () => {
+        body.style.backgroundImage = `url(${pic.src})`;
+      }
+
+    }
+
+    function getBackgroundPic() {
+
+      const hours = new Date().getHours();
+      let picNum;
+
+      picNum = getRandomNumber();
+
+
+      let setQuarter = getTimeOfDay(hours)[1];
+
+      body.style.backgroundImage = `url('https://raw.githubusercontent.com/Gromov812/stage1-tasks/assets/images/${setQuarter}/${picNum}.jpg')`;
+      return [picNum, setQuarter];
+    }
+    currentSlide = getBackgroundPic()[0]
+    setQuarter = getBackgroundPic()[1]
+
+
+
+    /*------------------- GREETINGS AND CLOCK -------------------*/
+
+
+    username.addEventListener('input', (e) => {
+      localStorage.setItem('name', e.target.value);
+    })
+    username.value = localStorage.getItem('name')
+
+
+    function getRandomNumber() {
+      let time = Math.floor(Math.random() * (20.99 - 1.01) + 1.01);
+      time = String(time).length < 2 ? `0${time}` : time;
+      return time;
+    }
+
+
+
+    function getTimeOfDay(hours) {
+      let greeting;
+      let quarter;
+      switch (true) {
+        case !!(hours < 6):
+          greeting = lang[`${setLang}`][`greet`][`goodNight`];
+          quarter = 'night';
+          break;
+        case !!(hours >= 6 & hours < 12):
+          greeting = lang[`${setLang}`][`greet`][`goodMorning`];
+          quarter = 'morning';
+          break;
+        case !!(hours >= 12 & hours < 18):
+          greeting = lang[`${setLang}`][`greet`][`goodDay`];
+          quarter = 'afternoon';
+          break;
+        case !!(hours >= 18):
+          greeting = lang[`${setLang}`][`greet`][`goodEvening`];
+          quarter = 'evening';
+          break;
+      }
+      return [greeting, quarter];
+    }
+
+    const timeTicker = setInterval(() => {
+
+      const data = new Date();
+      const hours = data.getHours();
+
+
+
+
+      time.innerHTML = `${data.toLocaleTimeString()}`;
+      date.innerHTML = new Date().toLocaleString(lang[`${setLang}`]['time']['format'],{weekday: "long", month: "long", day: "numeric"});
+      greet.innerHTML = `${getTimeOfDay(hours)[0]}`;
+
+      songTimer.value = player.currentTime;
+      
+      currentSongDuration.innerHTML = `${durationToTime(player.currentTime)}`
+    }, 100);
+
+
+    /*------------------- WHEATHER -------------------*/
+
+
+    async function getWheather(city) {
+
+      const wheatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&lang=${setLang}&appid=c0376ce1bc49bfa206d3a9c07cd61c4c&units=metric`;
+      let weatherData = await fetch(wheatherApiUrl)
+      let res = await weatherData.json();
+      console.log(res);
+
+      try {
+        wheatherError.innerHTML = ``;
+        weatherIcon.className = 'weather-icon owf';
+        weatherIcon.classList.add(`owf-${res.weather[0].id}`);
+        weatherTemperature.innerHTML = `Temp: ${Math.round(res.main.temp)}°C <br/> Feels like: ${Math.round(res.main.feels_like)}°C`;
+        weatherDescription.innerHTML = `${res.weather[0].description}`
+      }
+      catch (err) {
+        console.log(err);
+        wheatherError.innerHTML = `City is not correct`;
+        weatherTemperature.innerHTML = ``;
+        weatherDescription.innerHTML = ``;
+      }
+
+
+    }
+    getWheather(localStorage.getItem('city'));
+
+    wheatherCity.addEventListener('change', (e) => {
+
+      localStorage.setItem('city', e.target.value);
+      getWheather(e.target.value);
+    });
+    wheatherCity.value = localStorage.getItem('city')
+
+    /*------------------- QUOTES  -------------------*/
+
+
+
+
+
+    async function quo () {
+      let cors = "https://cors-anywhere.herokuapp.com/";
+      let url = `https://api.forismatic.com/api/1.0/?method=getQuote&format=json&key=&lang=${setLang}`
+        let data = await fetch(cors + url)
+         data = await data.json();
+         quoteText.textContent = `${data.quoteText}`
+         quoteAuthor.textContent = `${data.quoteAuthor}`
+
+      }
+      quo();
+      updateQuote.addEventListener('click', quo)
+
+
+
+      
+    /*------------------- PLAYER  -------------------*/
+
+
+    let playerSongs = [
+      {
+        name: 'Aqua Caelestis',
+        src: './assets/sounds/Aqua_Caelestis.mp3'
+      },
+      {
+        name: 'zvuk',
+        src: './assets/sounds/zvuk.mp3'
+      },
+      {
+        name: 'Ennio Morricone',
+        src: './assets/sounds/Ennio_Morricone.mp3'
+      },
+      {
+        name: 'River Flows In You',
+        src: './assets/sounds/River_Flows_In_You.mp3'
+      },
+      {
+        name: 'Summer Wind',
+        src: './assets/sounds/Summer_Wind.mp3'
+      },
+      {
+        name: 'zvuk',
+        src: './assets/sounds/zvuk.mp3'
+      },  
+    ]
+
+    let playFlag = false;
+    var player = new Audio;
+    player.volume = 0.2;
+    let songNum = 3;
+
+    player.src = playerSongs[songNum].src;
+
+    function playerControls(task, i) {
+      switch(task) {
+        case 'play' : play('play',i);
+        break;
+        case 'play-next' : play('next',i);
+        break;
+        case 'play-prev' : play('prev',i);
+        break;
+        case 'list-change' : play('list-change', i);
+        break;
+        default : console.log('!');;
+      }
+    }
+
+    player.addEventListener('ended', () => {
+      play('next');
+    })
+
+    function play(action,i) {
+      let playButton = document.querySelector('.play');
+
+      if (action == 'prev') {
+        songNum -= 1;
+        start()
+      } 
+      else if (action == 'next')  {
+        songNum += 1;
+        start();
+      }
+      else if (action == 'list-change') {
+        if (i == songNum) {
+          player.paused ? player.play() : player.pause();
+          playButton.classList.contains('pause') ? playButton.classList.remove('pause') : playButton.classList.add('pause');
+        }
+        else {
+          songNum = i;
+          start();
+        }
+      }
+      else if (action == 'play') {
+        player.paused ? player.play() : player.pause();
+
+        playButton.classList.contains('pause') ? playButton.classList.remove('pause') : playButton.classList.add('pause');
+        setClassForActiveSong(songNum)
+       
+          songTimer.max = Math.floor(player.duration);
+          allSongDuration.innerHTML = `${durationToTime(player.duration)}`;
+          songName.innerHTML = `${playerSongs[songNum].name}`;
+
+      }
+
+        function start () {
+          songNum == playerSongs.length ? songNum = 0 : songNum;
+      songNum < 0 ?  songNum = playerSongs.length - 1 : songNum;
+        player.src = playerSongs[songNum].src;
+        player.play();
+        ! playButton.classList.contains('pause') &&  playButton.classList.add('pause');
+        setClassForActiveSong(songNum)
+        player.addEventListener('loadedmetadata', () => {
+          songTimer.max = Math.floor(player.duration);
+          allSongDuration.innerHTML = `${durationToTime(player.duration)}`;
+          songName.innerHTML = `${playerSongs[songNum].name}`;
+
+          
+});
+        
+     
+      }
+    }
+
+    for (let el of playerButtons) {
+      el.addEventListener('click', () => {
+
+        if (el.classList.contains('play-prev')) {
+          playerControls('play-prev');
+        }
+        if (el.classList.contains('play')) {
+          playerControls('play');
+        }
+        if (el.classList.contains('play-next')) {
+          playerControls('play-next');
+        }
+
+      })
+    }
+
+
+
+    playerSongs.forEach((el, i) => {
+      const li = document.createElement('li');
+      li.classList.add('play-item');
+      li.setAttribute('i', i);
+      li.innerHTML = `${el.name}`;
+      playlist.append(li);
+
+      li.addEventListener('click', () => {
+        playerControls('list-change', i);
+        setClassForActiveSong(songNum);
+      })
+    })
+
+    function setClassForActiveSong(i) {
+      let list = playlist.querySelectorAll('li');
+      list.forEach(el => {
+        el.classList.contains('item-active') && el.classList.remove('item-active');
+        if (el.getAttribute('i') == songNum) el.classList.add('item-active');
+      });
+
+    }
+
+    function mute () {
+      muteButton.classList.toggle('unmute')
+      player.muted = !player.muted;
+}
+  muteButton.addEventListener('click', mute);
+
+    function durationToTime(d) {
+      let minuts = +d/60;
+      let seconds = d % 60 < 10 ? `0${(d%60).toFixed(0)}` : (d%60).toFixed(0);
+      return `${Math.floor(minuts)}:${seconds}`;
+    }
+
+    songTimer.addEventListener('change', () => {
+      
+      player.currentTime = Math.round(songTimer.value); 
+
+    })
+
+    volume.addEventListener('change', () => {
+      player.volume = +volume.value/100;
+    })
+
+
+
+  </script>
+</body>
+
+</html>
