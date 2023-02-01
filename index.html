@@ -154,7 +154,7 @@
     const muteButton = document.querySelector('.mute');
     const settingsButton = document.querySelector('.settings');
 
-    let setLang = localStorage.getItem('lang');
+    let setLang = (localStorage.getItem('lang') || 'ru');
 
     chooseLang.addEventListener('change', (e) => {
 
