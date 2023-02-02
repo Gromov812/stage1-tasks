@@ -367,7 +367,7 @@
     async function quo () {
       let cors = "https://cors-anywhere.herokuapp.com/";
       let url = `https://api.forismatic.com/api/1.0/?method=getQuote&format=json&key=&lang=${setLang}`
-        let data = await fetch(cors + url)
+        let data = await fetch(url)
          data = await data.json();
          quoteText.textContent = `${data.quoteText}`
          quoteAuthor.textContent = `${data.quoteAuthor}`
